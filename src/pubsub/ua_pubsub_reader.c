@@ -234,14 +234,30 @@ UA_DataSetReader_generateNetworkMessage(UA_PubSubConnection *pubSubConnection, U
          (u64)UA_UADPNETWORKMESSAGECONTENTMASK_PROMOTEDFIELDS) != 0;
     networkMessage->version = 1;
     networkMessage->networkMessageType = UA_NETWORKMESSAGE_DATASET;
-    if(UA_DataType_isNumeric(dataSetReader->config.publisherId.type)) {
-        /* TODO Support all numeric types */
-        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_UINT16;
-        networkMessage->publisherId.publisherIdUInt16 = *(UA_UInt16 *) dataSetReader->config.publisherId.data;
-    } else {
-        return UA_STATUSCODE_BADNOTSUPPORTED;
+    if(dataSetReader->config.publisherId.type == &UA_TYPES[UA_TYPES_BYTE]){
+        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_BYTE;
+        networkMessage->publisherId.publisherIdByte = *(UA_Byte*)dataSetReader->config.publisherId.data;
     }
-
+    else if(dataSetReader->config.publisherId.type == &UA_TYPES[UA_TYPES_UINT16]){
+        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_UINT16;
+        networkMessage->publisherId.publisherIdUInt16 = *(UA_UInt16*)dataSetReader->config.publisherId.data;
+    }
+    else if(dataSetReader->config.publisherId.type == &UA_TYPES[UA_TYPES_UINT32]){
+        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_UINT32;
+        networkMessage->publisherId.publisherIdUInt32 = *(UA_UInt32*)dataSetReader->config.publisherId.data;
+    }
+    else if(dataSetReader->config.publisherId.type == &UA_TYPES[UA_TYPES_UINT64]){
+        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_UINT64;
+        networkMessage->publisherId.publisherIdUInt64 = *(UA_UInt64*)dataSetReader->config.publisherId.data;
+    }
+    else if(dataSetReader->config.publisherId.type == &UA_TYPES[UA_TYPES_STRING]){
+        networkMessage->publisherIdType = UA_PUBLISHERDATATYPE_STRING;
+        networkMessage->publisherId.publisherIdString = *(UA_String*)dataSetReader->config.publisherId.data;
+    }
+    else{
+        return UA_STATUSCODE_BADINTERNALERROR;
+    }
+    
     if(networkMessage->groupHeader.sequenceNumberEnabled)
         networkMessage->groupHeader.sequenceNumber = 1; // Will be modified when subscriber receives new nw msg.
     /* Compute the length of the dsm separately for the header */
