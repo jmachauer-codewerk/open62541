@@ -893,6 +893,17 @@ UA_Server_addDataSetReader(UA_Server *server, UA_NodeId readerGroupIdentifier,
         return UA_STATUSCODE_BADCONFIGURATIONERROR;
     }
 
+    if(!(dataSetReaderConfig->publisherId.type == &UA_TYPES[UA_TYPES_BYTE] ||
+    dataSetReaderConfig->publisherId.type == &UA_TYPES[UA_TYPES_UINT16] ||
+    dataSetReaderConfig->publisherId.type == &UA_TYPES[UA_TYPES_UINT32] ||
+    dataSetReaderConfig->publisherId.type == &UA_TYPES[UA_TYPES_UINT64] ||
+    dataSetReaderConfig->publisherId.type == &UA_TYPES[UA_TYPES_STRING] || 
+    UA_Variant_isEmpty(&dataSetReaderConfig->publisherId))){
+        UA_LOG_ERROR(&server->config.logger, UA_LOGCATEGORY_SERVER,
+                     "Add DataSetReader failed. Invalid PublisherIdType.");
+        return UA_STATUSCODE_BADTYPEMISMATCH;
+    }
+
     /* Allocate memory for new DataSetReader */
     UA_DataSetReader *newDataSetReader = (UA_DataSetReader *)UA_calloc(1, sizeof(UA_DataSetReader));
     /* Copy the config into the new dataSetReader */
