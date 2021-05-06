@@ -12,6 +12,9 @@
 #ifdef UA_ENABLE_PUBSUB_ETH_UADP
 #include <open62541/plugin/pubsub_ethernet.h>
 #endif
+#ifdef UA_ENABLE_PUBSUB_MQTT
+#include "../plugins/ua_network_pubsub_mqtt.h"
+#endif
 #include <open62541/plugin/pubsub_udp.h>
 #endif
 
@@ -293,6 +296,14 @@ UA_PubSubManager_createTransportLayer(UA_Server *server, const UA_String transpo
         UA_String strETH = UA_STRING("http://opcfoundation.org/UA-Profile/Transport/pubsub-eth-uadp");
         if(UA_String_equal(&transportProfileUri, &strETH)) {
             tl = UA_PubSubTransportLayerEthernet();
+            break;
+        }
+    #endif
+
+    #ifdef UA_ENABLE_PUBSUB_MQTT
+        UA_String strMQTT = UA_STRING("http://opcfoundation.org/UA-Profile/Transport/pubsub-mqtt");
+        if(UA_String_equal(&transportProfileUri, &strMQTT)) {
+            tl = UA_PubSubTransportLayerMQTT();
             break;
         }
     #endif
