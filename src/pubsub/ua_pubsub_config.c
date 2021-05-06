@@ -1201,7 +1201,6 @@ static UA_StatusCode
 UA_PubSubManager_generatePubSubConnectionDataType(UA_PubSubConnectionDataType *dst,
                                     const UA_PubSubConnection *src) {
     UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-    size_t index;
     memset(dst, 0, sizeof(UA_PubSubConnectionDataType));
     
     UA_String_copy(&src->config->name, &dst->name);
@@ -1209,8 +1208,9 @@ UA_PubSubManager_generatePubSubConnectionDataType(UA_PubSubConnectionDataType *d
     dst->enabled = src->config->enabled;
 
     dst->connectionPropertiesSize = src->config->connectionPropertiesSize;
-    for(index = 0; index < src->config->connectionPropertiesSize; index++) {
-        UA_KeyValuePair_copy(&src->config->connectionProperties[index], &dst->connectionProperties[index]);
+    retVal = UA_Array_copy(src->config->connectionProperties, dst->connectionPropertiesSize, (void**)&dst->connectionProperties, &UA_TYPES[UA_TYPES_KEYVALUEPAIR]);
+    if(retVal != UA_STATUSCODE_GOOD) {
+        return retVal;
     }
 
     if(src->config->publisherIdType == UA_PUBSUB_PUBLISHERID_NUMERIC) {
